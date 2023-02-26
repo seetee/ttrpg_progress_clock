@@ -1,5 +1,4 @@
-# ttrpg_progress_clock
-
+# TableTop Role Playing Game - Progress Clock App    
 
 https://bladesinthedark.com/progress-clocks    
 
