@@ -5,7 +5,8 @@
     "sass": "^1.69.4",
     "squoosh": "^0.0.0"
   },
-  "scripts": { 
-    "scss": "./node_modules/sass/sass.js scss/style.scss css/style.css"
+  "scripts": {
+    "scss": "./node_modules/sass/sass.js scss/style.scss css/style.css",
+    "compress": "squoosh",
   }
 }
