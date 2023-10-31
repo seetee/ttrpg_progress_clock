@@ -2,9 +2,9 @@
   "dependencies": {
     "bootstrap": "^5.3.2",
     "sass": "^1.69.5"
-  }, 
+  },
   "scripts": {
     "sass": "./node_modules/sass/sass.js css/scss/style.scss css/style.css",
-    "squoosh": "squoosh "
+    "squoosh": "squoosh-cli img/src/bild.jpg -d ./img/ "
   }
 }
