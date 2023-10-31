@@ -9,9 +9,10 @@
     "sass": "./node_modules/sass/sass.js css/scss/style.scss css/style.css",
     "squoosh": "squoosh-cli img/src/bild.jpg -d ./img/ ",
     "csslint": "./node_modules/csslint/dist/cli.js css/style.css",
-    "precommit-msg": "echo 'Pre-commit checks...' && exit 0"
+    "precommit-msg": "echo 'Pre-commit checks...' && exit 0",
+    "cy:run": "npx cypress run"
   },
-  "pre-commit": [ "precommit-msg", "csslint" ],
+  "pre-commit": [ "precommit-msg", "csslint", "cy:run" ],
   "devDependencies": {
     "csslint": "^1.0.5",
     "pre-commit": "^1.1.3"
