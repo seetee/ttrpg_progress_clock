@@ -2,17 +2,23 @@
   "dependencies": {
     "bootstrap": "^5.3.2",
     "csslint": "^1.0.5",
+    "onchange": "^7.1.0",
     "pre-commit": "^1.2.2",
     "sass": "^1.69.5"
   },
   "scripts": {
     "sass": "./node_modules/sass/sass.js css/scss/style.scss css/style.css",
+    "sass:watch": "onchange \"./css/scss/*.scss\" -- npm run sass --silent",
     "squoosh": "squoosh-cli img/src/bild.jpg -d ./img/ ",
     "csslint": "./node_modules/csslint/dist/cli.js css/style.css",
     "precommit-msg": "echo 'Pre-commit checks...' && exit 0",
-    "cy:run": "npx cypress run"
+    "cypress": "npx cypress run"
   },
-  "pre-commit": [ "precommit-msg", "csslint", "cy:run" ],
+  "pre-commit": [
+    "precommit-msg",
+    "csslint",
+    "cypress"
+  ],
   "devDependencies": {
     "csslint": "^1.0.5",
     "pre-commit": "^1.1.3"

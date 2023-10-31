@@ -1,65 +1,15 @@
-html {
-  background: var(--gray-3);
-}
-
-h1 {
-  background: var(--gradient-1);
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-  line-height: var(--font-lineheight-1);
-  font-size: var(--font-size-fluid-3);
-  font-weight: var(--font-weight-9);
-  font-family: var(--font-sans);
+body {
+  background: teal;
 }
 
 main {
-  display: grid;
-  justify-content: center;
+  background: grey;
 }
 
-.card {
-  aspect-ratio: 16/9;
+main, footer {
   max-width: 80vw;
-  min-width: 50vw;
-  margin-block: 4em;
-  border-radius: var(--radius-2);
-  padding: var(--size-fluid-3);
-  box-shadow: var(--shadow-2);
-}
-.card:hover {
-  box-shadow: var(--shadow-3);
-}
-@media (--motionOK) {
-  .card {
-    animation: var(--animation-fade-in);
-  }
-}
-.card h2 {
-  padding: 2em;
-  margin-block-start: -1em;
-  margin-inline-start: -1em;
-  width: 70%;
-  text-align: center;
-  line-height: var(--font-lineheight-1);
-  font-size: var(--font-size-fluid-2);
-  font-weight: var(--font-weight-9);
-  background-image: var(--gradient-7);
-  font-family: var(--font-sans);
-}
-@media (--OSdark) {
-  .card h2 {
-    background-image: var(--gradient-15);
-  }
-}
-.card dl {
-  margin-inline-start: 6em;
-}
-.card dt {
-  margin-block-start: 1em;
-  display: inline-block;
-  font-size: var(--font-size-4);
-  font-weight: var(--font-weight-9);
+  display: grid;
+  justify-content: center;
 }
 
 /*# sourceMappingURL=style.css.map */
