@@ -1,0 +1,10 @@
+{
+  "name": "TTRPG Progress Clock",
+  "short_name": "ttrpgpc",
+  "theme_color": "#f3a921",
+  "background_color": "#d321f3",
+  "display": "standalone",
+  "orientation": "portrait",
+  "scope": "/",
+  "start_url": "/"
+}
