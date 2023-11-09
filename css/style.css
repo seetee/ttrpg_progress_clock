@@ -5,13 +5,13 @@ body {
 }
 
 main {
-  background: grey;
+  background: lightgray;
 }
 
-main, footer {
-  max-width: 80vw;
+main {
   display: grid;
   justify-content: center;
+  padding: 2em;
 }
 
 /*# sourceMappingURL=style.css.map */
