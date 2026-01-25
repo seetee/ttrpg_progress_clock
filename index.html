@@ -1,45 +1,61 @@
 <!DOCTYPE html>
-<html>
-  <head>
-    <title>TTRPG Progress Clock</title>
-    <link rel="manifest" href="app.webmanifest" />
-    <link rel="stylesheet" href="https://seetee.github.io/bp/boilerplate.css" />
-    <link
-      rel="stylesheet"
-      href="./node_modules/bootstrap/dist/css/bootstrap.css"
-    />
-    <link rel="stylesheet" href="./css/bootstrap-theme.min.css" />
-    <link rel="stylesheet" href="./css/style.css" />
-    <script
-      src="https://unpkg.com/htmx.org@1.9.6"
-      integrity="sha384-FhXw7b6AlE/jyjlZH5iHa/tTe9EpJ1Y55RjcgPbjeWMskSxZt1v9qkxLJWNJaGni"
-      crossorigin="anonymous"
-    ></script>
-  </head>
-  <body>
-    <header>
-      <img src="img/bild.jpg" alt="Universum! Vackra stjärnor..." />
-    </header>
-    <main>
-      <article>
-        <h1>TTRPG Progress Clock</h1>
-        <p>A PWA for progress clocks in table top roll playing games.</p>
-        <button
-          type="button"
-          class="btn btn-primary fade-me-out"
-          hx-delete="/fade_out_demo"
-          hx-swap="outerHTML swap:1s"
-        >
-          Be gone!
-        </button>
-      </article>
-    </main>
-    <!--
-    <footer>
-      <h2>About me...</h2>
-      <ul>
-        <li>@seetee@mastodon.cloud</li>
-      </ul>
-    </footer>
-  --></body>
-</html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>TTRPG Progress Clock</title>
+<link rel="manifest" href="manifest.json">
+<link rel="stylesheet" href="css/style.css">
+<script defer src="app.js"></script>
+</head>
+<body>
+
+<header class="app-header">
+  <h1>TTRPG Progress Clock</h1>
+</header>
+
+<main id="clockContainer" class="clock-grid" aria-live="polite">
+  <!-- clocks will be injected here -->
+</main>
+
+<!-- Floating “+” button -->
+<button id="addBtn" class="fab" aria-label="Add new clock">+</button>
+
+<!-- Modal for creating / editing a clock -->
+<div id="modalOverlay" class="modal hidden" role="dialog" aria-modal="true">
+  <div class="modal-content">
+    <h2 id="modalTitle">New Clock</h2>
+
+    <label>Segments</label>
+    <fieldset class="segments-group">
+      <label><input type="radio" name="segments" value="3" required>3</label>
+      <label><input type="radio" name="segments" value="4">4</label>
+      <label><input type="radio" name="segments" value="5">5</label>
+      <label><input type="radio" name="segments" value="6">6</label>
+      <label><input type="radio" name="segments" value="8">8</label>
+      <label><input type="radio" name="segments" value="10">10</label>
+    </fieldset>
+
+    <label for="colorPicker">Colour</label>
+    <input type="color" id="colorPicker" value="#ff9800">
+
+    <label>Default suggestions</label>
+    <div class="suggestions">
+      <button class="suggestion" style="background:#ff9800;"></button>
+      <button class="suggestion" style="background:#03a9f4;"></button>
+      <button class="suggestion" style="background:#8bc34a;"></button>
+      <button class="suggestion" style="background:#e91e63;"></button>
+      <button class="suggestion" style="background:#ffeb3b;"></button>
+      <button class="suggestion" style="background:#9c27b0;"></button>
+    </div>
+
+    <label for="titleInput">Title (optional)</label>
+    <input type="text" id="titleInput" placeholder="My Clock">
+
+    <div class="modal-actions">
+      <button id="cancelBtn" type="button">Cancel</button>
+      <button id="saveBtn" type="button">Save</button>
+    </div>
+  </div>
+</div>
+
+</body>
