@@ -1,61 +1,82 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>TTRPG Progress Clock</title>
-<link rel="manifest" href="manifest.json">
-<link rel="stylesheet" href="css/style.css">
-<script defer src="app.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#1a1208">
+  <meta name="description" content="Progress Clocks — TTRPG session tool for Game Masters">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>Progress Clocks</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="manifest" href="manifest.json">
 </head>
 <body>
 
-<header class="app-header">
-  <h1>TTRPG Progress Clock</h1>
-</header>
+  <main class="clock-grid" id="clock-grid" aria-label="Progress clocks"></main>
 
-<main id="clockContainer" class="clock-grid" aria-live="polite">
-  <!-- clocks will be injected here -->
-</main>
-
-<!-- Floating “+” button -->
-<button id="addBtn" class="fab" aria-label="Add new clock">+</button>
-
-<!-- Modal for creating / editing a clock -->
-<div id="modalOverlay" class="modal hidden" role="dialog" aria-modal="true">
-  <div class="modal-content">
-    <h2 id="modalTitle">New Clock</h2>
-
-    <label>Segments</label>
-    <fieldset class="segments-group">
-      <label><input type="radio" name="segments" value="3" required>3</label>
-      <label><input type="radio" name="segments" value="4">4</label>
-      <label><input type="radio" name="segments" value="5">5</label>
-      <label><input type="radio" name="segments" value="6">6</label>
-      <label><input type="radio" name="segments" value="8">8</label>
-      <label><input type="radio" name="segments" value="10">10</label>
-    </fieldset>
-
-    <label for="colorPicker">Colour</label>
-    <input type="color" id="colorPicker" value="#ff9800">
-
-    <label>Default suggestions</label>
-    <div class="suggestions">
-      <button class="suggestion" style="background:#ff9800;"></button>
-      <button class="suggestion" style="background:#03a9f4;"></button>
-      <button class="suggestion" style="background:#8bc34a;"></button>
-      <button class="suggestion" style="background:#e91e63;"></button>
-      <button class="suggestion" style="background:#ffeb3b;"></button>
-      <button class="suggestion" style="background:#9c27b0;"></button>
-    </div>
-
-    <label for="titleInput">Title (optional)</label>
-    <input type="text" id="titleInput" placeholder="My Clock">
-
-    <div class="modal-actions">
-      <button id="cancelBtn" type="button">Cancel</button>
-      <button id="saveBtn" type="button">Save</button>
-    </div>
+  <div class="empty-state" id="empty-state" aria-live="polite">
+    <svg viewBox="0 0 100 100" width="72" height="72" aria-hidden="true" focusable="false">
+      <circle cx="50" cy="50" r="38" fill="none" stroke="currentColor"
+              stroke-width="10" opacity="0.25"/>
+      <path d="M50 12 A38 38 0 0 1 88 50" fill="none" stroke="currentColor"
+            stroke-width="10" stroke-linecap="round" opacity="0.55"/>
+    </svg>
+    <p>No progress clocks.</p>
+    <p class="muted">Tap ✏ to enter edit mode, then + to add one.</p>
   </div>
-</div>
 
+  <!-- Floating controls: edit toggle (bottom-left) + FAB (bottom-right) -->
+  <div class="ui-overlay">
+    <button class="edit-toggle" id="edit-toggle"
+            aria-label="Toggle edit mode"
+            aria-pressed="false"
+            title="Toggle edit mode">
+      <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false">
+        <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a1 1 0 0 0 0-1.41l-2.34-2.34a1 1 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
+      </svg>
+    </button>
+    <button class="fab" id="add-btn" aria-label="Add progress clock" title="Add clock">
+      <svg viewBox="0 0 24 24" width="28" height="28" aria-hidden="true" focusable="false">
+        <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
+      </svg>
+    </button>
+  </div>
+
+  <!-- Add / Edit dialog -->
+  <dialog id="clock-dialog" aria-labelledby="dialog-heading">
+    <form id="clock-form" method="dialog" novalidate>
+      <h2 id="dialog-heading">Add Clock</h2>
+
+      <div class="field">
+        <label for="f-name">Name</label>
+        <input id="f-name" name="name" type="text"
+               required maxlength="40" autocomplete="off"
+               placeholder="e.g. Mansion Alert">
+      </div>
+
+      <fieldset class="field">
+        <legend>Segments</legend>
+        <div class="chip-group" id="segment-chips"></div>
+        <input id="f-custom" name="custom" type="number"
+               min="2" max="20" placeholder="Enter a number (2–20)"
+               class="custom-number" hidden
+               aria-label="Custom segment count">
+      </fieldset>
+
+      <fieldset class="field">
+        <legend>Colour</legend>
+        <div class="palette-grid" id="palette-grid"></div>
+      </fieldset>
+
+      <div class="dialog-actions">
+        <button type="button" class="btn btn-ghost" id="dialog-cancel">Cancel</button>
+        <button type="submit" class="btn btn-primary" id="dialog-submit">Add Clock</button>
+      </div>
+    </form>
+  </dialog>
+
+  <script src="app.js"></script>
 </body>
+</html>
