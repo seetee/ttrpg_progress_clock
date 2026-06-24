@@ -197,6 +197,7 @@ function pointerUp(id) {
 
 function pointerCancel() {
   clearTimeout(pressTimer);
+  pressTimer  = null;
   pressActive = false;
 }
 
@@ -290,7 +291,9 @@ function handleDialogSubmit(e) {
   const name = form.elements['name'].value.trim();
   if (!name) { form.elements['name'].reportValidity(); return; }
 
-  const segRaw = (form.querySelector('input[name="segments"]:checked') || {}).value;
+  const checkedSeg = form.querySelector('input[name="segments"]:checked');
+  if (!checkedSeg) return; // shouldn't happen, but guard anyway
+  const segRaw = checkedSeg.value;
   let segments;
   if (segRaw === 'custom') {
     const custom = document.getElementById('f-custom');
