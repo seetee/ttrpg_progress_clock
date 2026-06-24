@@ -8,7 +8,7 @@
   --surface:      oklch(20% 0.022 50);
   --surface-hi:   oklch(26% 0.020 50);
   --on-surface:   oklch(91% 0.010 60);
-  --on-muted:     oklch(56% 0.010 58);
+  --on-muted:     oklch(62% 0.010 58);
 
   /* Amber accent for UI chrome */
   --accent:       oklch(70% 0.160 58);
@@ -138,8 +138,8 @@ svg path { fill: currentColor; }
 }
 
 @keyframes ring-throb {
-  0%, 100% { stroke-opacity: 0.4; r: 48; }
-  50%       { stroke-opacity: 1.0; r: 46; }
+  0%, 100% { stroke-opacity: 0.4; stroke-width: 1.5; }
+  50%       { stroke-opacity: 1.0; stroke-width: 3.5; }
 }
 
 /* Center circle & counter text */
