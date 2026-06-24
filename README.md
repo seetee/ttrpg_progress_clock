@@ -1,5 +1,8 @@
 # Progress Clocks
 
+[![Vibe Coded](https://img.shields.io/badge/vibe-coded-ff69b4?style=flat-square)](https://github.com/topics/vibe-coding)
+[![Built with Claude](https://img.shields.io/badge/built%20with-Claude-orange?style=flat-square&logo=anthropic)](https://claude.ai)
+
 A minimal, offline-first PWA for Game Masters running tabletop RPG sessions.
 
 Progress clocks are a tool popularised by *Blades in the Dark*: a circle divided into segments that fills up incrementally as a larger event unfolds — an alarm system tripping, a ritual completing, guards closing in. When the clock is full, something happens.
@@ -40,3 +43,7 @@ To edit clocks (add, rename, reset, delete): tap the **✏ pencil icon** bottom-
 ## Technical notes
 
 Vanilla HTML, CSS, and JavaScript — no build step, no framework, no dependencies. All colours are defined in `oklch()`. Animations respect `prefers-reduced-motion`. WCAG AA contrast throughout.
+
+---
+
+> Vibe coded with [Claude](https://claude.ai) · Add the [`vibe-coding`](https://github.com/topics/vibe-coding) topic to this repo to make it discoverable
