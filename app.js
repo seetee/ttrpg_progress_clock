@@ -4,51 +4,50 @@
 const PALETTES = {
   crimson: {
     label:    'Crimson',
-    base:     'oklch(52% 0.230 14)',
-    mid:      'oklch(66% 0.210 20)',
+    base:     'oklch(62% 0.230 14)',
+    mid:      'oklch(76% 0.210 20)',
     empty:    'oklch(23% 0.052 14)',
-    glow:     'oklch(52% 0.230 14 / 0.55)',
+    glow:     'oklch(62% 0.230 14 / 0.55)',
     animated: true,
   },
   venom: {
     label:    'Venom',
-    base:     'oklch(48% 0.210 142)',
-    mid:      'oklch(61% 0.190 132)',
+    base:     'oklch(60% 0.210 142)',
+    mid:      'oklch(73% 0.185 132)',
     empty:    'oklch(21% 0.050 142)',
-    glow:     'oklch(50% 0.210 142 / 0.55)',
+    glow:     'oklch(60% 0.210 142 / 0.55)',
     animated: true,
   },
   arcane: {
     label:    'Arcane',
-    base:     'oklch(46% 0.270 302)',
-    mid:      'oklch(60% 0.240 290)',
+    base:     'oklch(58% 0.270 302)',
+    mid:      'oklch(72% 0.230 290)',
     empty:    'oklch(20% 0.060 302)',
-    glow:     'oklch(48% 0.270 302 / 0.55)',
+    glow:     'oklch(58% 0.270 302 / 0.55)',
     animated: true,
   },
   ember: {
     label:    'Ember',
-    base:     'oklch(58% 0.210 38)',
-    mid:      'oklch(70% 0.190 52)',
+    base:     'oklch(68% 0.210 38)',
+    mid:      'oklch(80% 0.185 52)',
     empty:    'oklch(24% 0.050 38)',
-    glow:     'oklch(58% 0.210 38 / 0.50)',
-    animated: false,
+    glow:     'oklch(68% 0.210 38 / 0.55)',
+    sweep:    true,
   },
   frost: {
     label:    'Frost',
-    base:     'oklch(62% 0.130 222)',
-    mid:      'oklch(76% 0.090 216)',
-    empty:    'oklch(23% 0.040 222)',
-    glow:     'oklch(62% 0.130 222 / 0.45)',
-    animated: false,
+    base:     'oklch(76% 0.110 195)',
+    mid:      'oklch(88% 0.070 195)',
+    empty:    'oklch(23% 0.035 210)',
+    glow:     'oklch(76% 0.110 195 / 0.50)',
+    sweep:    true,
   },
   iron: {
     label:    'Iron',
-    base:     'oklch(52% 0.038 250)',
-    mid:      'oklch(70% 0.028 246)',
-    empty:    'oklch(22% 0.018 250)',
-    glow:     'oklch(52% 0.038 250 / 0.30)',
-    animated: false,
+    base:     'oklch(65% 0.018 80)',
+    mid:      'oklch(78% 0.012 80)',
+    empty:    'oklch(24% 0.012 80)',
+    glow:     'oklch(65% 0.018 80 / 0.35)',
   },
 };
 
@@ -111,6 +110,9 @@ function clockSVG(clock) {
 
   const done = filled === segments;
   const vars = `--c-base:${pal.base};--c-mid:${pal.mid};--c-empty:${pal.empty};--c-glow:${pal.glow}`;
+  const sweep = pal.sweep
+    ? `<circle class="sweep-arc" cx="${CX}" cy="${CY}" r="${(OR + IR) / 2}" fill="none" stroke="var(--c-mid)" stroke-width="${OR - IR}" stroke-dasharray="28 ${Math.PI * (OR + IR) - 28}" stroke-linecap="round" opacity="0.38"/>`
+    : '';
 
   return `<svg class="clock-svg"
      viewBox="0 0 100 100"
@@ -119,7 +121,7 @@ function clockSVG(clock) {
      tabindex="0"
      style="${vars}">${
        done ? `<circle class="complete-ring" cx="${CX}" cy="${CY}" r="48"/>` : ''
-     }${paths}<circle class="clock-center" cx="${CX}" cy="${CY}" r="${IR - 5}"/><text class="clock-text" x="${CX}" y="${CY}">${filled}/${segments}</text></svg>`;
+     }${paths}${sweep}<circle class="clock-center" cx="${CX}" cy="${CY}" r="${IR - 5}"/><text class="clock-text" x="${CX}" y="${CY}">${filled}/${segments}</text></svg>`;
 }
 
 // ── Rendering ─────────────────────────────────────────────────────────────────
@@ -135,7 +137,8 @@ function renderAll() {
     return `<article
         class="clock-card${done ? ' is-complete' : ''}"
         data-id="${c.id}"
-        data-animated="${pal.animated}"
+        data-animated="${pal.animated || false}"
+        data-sweep="${pal.sweep || false}"
         style="--c-glow:${pal.glow}"
       >${clockSVG(c)}<h2 class="clock-name">${escHtml(c.name)}</h2><div class="card-controls" role="group" aria-label="Controls for ${escHtml(c.name)}"><button class="btn-icon btn-reset" data-action="reset" aria-label="Reset ${escHtml(c.name)}" title="Reset"><svg viewBox="0 0 24 24" width="17" height="17"><path d="M12 5V1L7 6l5 5V7c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6H4c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8z"/></svg></button><button class="btn-icon btn-edit" data-action="edit" aria-label="Edit ${escHtml(c.name)}" title="Edit"><svg viewBox="0 0 24 24" width="17" height="17"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a1 1 0 0 0 0-1.41l-2.34-2.34a1 1 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg></button><button class="btn-icon btn-delete" data-action="delete" aria-label="Delete ${escHtml(c.name)}" title="Delete"><svg viewBox="0 0 24 24" width="17" height="17"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg></button></div></article>`;
   }).join('');

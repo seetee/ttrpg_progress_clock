@@ -130,6 +130,15 @@ body {
   50%       { stroke-opacity: 1.0; stroke-width: 3.5; }
 }
 
+.sweep-arc {
+  transform-origin: 50px 50px;
+  animation: sweep-rotate 4s linear infinite;
+}
+@keyframes sweep-rotate {
+  from { transform: rotate(-90deg); }
+  to   { transform: rotate(270deg); }
+}
+
 .clock-center { fill: var(--surface); }
 .clock-text {
   fill: var(--on-muted);
