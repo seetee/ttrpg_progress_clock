@@ -1,5 +1,5 @@
 const CACHE = 'progress-clocks-v1';
-const ASSETS = ['/', '/index.html', '/style.css', '/app.js', '/manifest.json', '/icon.svg'];
+const ASSETS = ['./', './index.html', './app.js', './manifest.json', './icon.svg'];
 // Note: add any icon-*.png paths here if/when raster icons are generated
 
 self.addEventListener('install', e => {

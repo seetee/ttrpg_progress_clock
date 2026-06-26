@@ -36,6 +36,8 @@ To edit clocks (add, rename, reset, delete): tap the **✏ pencil icon** bottom-
 
 - [Progress Clocks — Blades in the Dark](https://bladesinthedark.com/progress-clocks)
 - [VTT Progress Clocks by GM Lazarus](https://gm-lazarus.itch.io/vtt-progress-clocks)
+- [css-doodle](https://css-doodle.com/)
+- [Time-based CSS animations by Yuan Chuan](https://yuanchuan.dev/time-based-css-animations)
 - [Reddit thread on progress clock tools](https://www.reddit.com/r/rpg/comments/1ahefvj/comment/konkouc/)
 
 ## Technical notes
@@ -44,4 +46,4 @@ Vanilla HTML, CSS, and JavaScript — no build step, no framework, no dependenci
 
 ---
 
-> Vibe coded with [Claude](https://claude.ai)
+> Vibe coded with [Claude](https://claude.ai) · Add the [`vibe-coding`](https://github.com/topics/vibe-coding) topic to this repo to make it discoverable
