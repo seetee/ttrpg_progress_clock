@@ -44,7 +44,3 @@ To edit clocks (add, rename, reset, delete): tap the **✏ pencil icon** bottom-
 ## Technical notes
 
 Vanilla HTML, CSS, and JavaScript — no build step, no framework, no dependencies. All colours are defined in `oklch()`. Animations respect `prefers-reduced-motion`. WCAG AA contrast throughout.
-
----
-
-> Vibe coded with [Claude](https://claude.ai) · Add the [`vibe-coding`](https://github.com/topics/vibe-coding) topic to this repo to make it discoverable
