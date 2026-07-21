@@ -18,8 +18,8 @@ const PALETTES = {
     glow:     'oklch(60% 0.210 142 / 0.55)',
     animated: true,
   },
-  arcane: {
-    label:    'Arcane',
+  cypher: {
+    label:    'Cypher',
     base:     'oklch(58% 0.270 302)',
     mid:      'oklch(72% 0.230 290)',
     empty:    'oklch(20% 0.060 302)',
@@ -53,6 +53,11 @@ const PALETTES = {
 
 const SEGMENT_PRESETS = [2, 4, 6, 8, 10, 12, 20];
 
+// Palette keys that have been renamed. Stored clocks reference keys by name, so
+// without this map sanitize() would treat an old key as unknown and silently
+// reset those clocks to crimson.
+const RENAMED_PALETTES = { arcane: 'cypher' };
+
 // ── State ─────────────────────────────────────────────────────────────────────
 let clocks    = [];
 let editMode  = false;
@@ -78,12 +83,13 @@ function sanitize(raw) {
   return raw.flatMap(c => {
     if (!c || typeof c !== 'object' || !c.id || typeof c.name !== 'string') return [];
     const segments = Math.min(20, Math.max(2, Math.round(Number(c.segments)) || 6));
+    const palette  = RENAMED_PALETTES[c.palette] ?? c.palette;
     return [{
       id:       String(c.id),
       name:     c.name,
       segments,
       filled:   Math.min(segments, Math.max(0, Math.round(Number(c.filled)) || 0)),
-      palette:  c.palette in PALETTES ? c.palette : 'crimson',
+      palette:  palette in PALETTES ? palette : 'crimson',
     }];
   });
 }
@@ -164,7 +170,7 @@ function renderAll() {
         data-id="${c.id}"
         data-animated="${pal.animated || false}"
         data-sweep="${pal.sweep || false}"
-        style="--c-glow:${pal.glow};--c-base:${pal.base};--c-empty:${pal.empty};--fill:${fmt(c.filled / c.segments * 100)}%"
+        style="--c-glow:${pal.glow};--c-base:${pal.base};--c-empty:${pal.empty};--fill:${fmt(c.filled / c.segments * 100)}%;--ratio:${fmt(c.filled / c.segments)}"
       >${clockSVG(c)}<h2 class="clock-name">${escHtml(c.name)}</h2><div class="card-controls" role="group" aria-label="Controls for ${escHtml(c.name)}"><button class="btn-icon btn-reset" data-action="reset" aria-label="Reset ${escHtml(c.name)}" title="Reset"><svg viewBox="0 0 24 24" width="17" height="17"><path d="M12 5V1L7 6l5 5V7c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6H4c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8z"/></svg></button><button class="btn-icon btn-edit" data-action="edit" aria-label="Edit ${escHtml(c.name)}" title="Edit"><svg viewBox="0 0 24 24" width="17" height="17"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a1 1 0 0 0 0-1.41l-2.34-2.34a1 1 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg></button><button class="btn-icon btn-delete" data-action="delete" aria-label="Delete ${escHtml(c.name)}" title="Delete"><svg viewBox="0 0 24 24" width="17" height="17"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg></button></div></li>`;
   }).join('');
 }
@@ -185,7 +191,8 @@ function updateClock(id) {
   svg.querySelector('.clock-text').textContent = `${c.filled}/${c.segments}`;
   svg.setAttribute('aria-label', clockLabel(c));
 
-  card.style.setProperty('--fill', `${fmt(c.filled / c.segments * 100)}%`);
+  card.style.setProperty('--fill',  `${fmt(c.filled / c.segments * 100)}%`);
+  card.style.setProperty('--ratio', `${fmt(c.filled / c.segments)}`);
   card.classList.toggle('is-complete', c.filled === c.segments);
 
   announce(`${c.name}, ${c.filled} of ${c.segments}${c.filled === c.segments ? ', complete' : ''}`);

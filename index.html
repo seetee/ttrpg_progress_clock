@@ -17,11 +17,16 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
-  --bg:           oklch(15% 0.022 52);
-  --surface:      oklch(20% 0.022 50);
-  --surface-hi:   oklch(26% 0.020 50);
+  /* Cold machined glass, warm phosphor on top — lifted from the npc overlay.
+     The charge comes from the hue split: surfaces sit at 130, everything
+     lit (text, accent, clock palettes) stays warm. */
+  --bg:           oklch(9% 0.006 145);
+  --surface:      oklch(17% 0.022 130);
+  --surface-hi:   oklch(23% 0.020 130);
+  --glass:        oklch(17% 0.022 130 / 0.88);
+  --faint:        color-mix(in oklch, var(--accent) 20%, transparent);
   --on-surface:   oklch(91% 0.010 60);
-  --on-muted:     oklch(62% 0.010 58);
+  --on-muted:     oklch(64% 0.012 58);
   --accent:       oklch(70% 0.160 58);
   --accent-dk:    oklch(56% 0.160 55);
   --radius-sm:  0.5rem;
@@ -41,7 +46,17 @@
 }
 
 body {
-  background: var(--bg);
+  /* Scanline field over a near-black ground. npc's lines are dark because that
+     overlay sits on live video; on a dark page dark-on-dark is invisible, so
+     these are light. The radial is the glow the plates sit in — without it the
+     ground reads as one flat colour, since we have no video behind the glass. */
+  background:
+    repeating-linear-gradient(to bottom,
+      oklch(82% 0.03 130 / 0.035) 0 1px, transparent 1px 3px),
+    radial-gradient(135% 95% at 50% -8%,
+      oklch(20% 0.026 132) 0%, transparent 58%),
+    var(--bg);
+  background-attachment: fixed;
   color: var(--on-surface);
   min-height: 100dvh;
   overflow-x: hidden;
@@ -93,7 +108,10 @@ body {
 .empty-state .muted  { font-size: 0.88rem; }
 
 .clock-card {
-  background: var(--surface);
+  /* Chamfered plate, not a web card. The cut corners are the strongest single
+     marker in the npc overlay; same polygon, scaled up for a card. */
+  background: var(--glass);
+  border: 1px solid var(--faint);
   border-radius: var(--radius-md);
   padding: 1.5rem 1.25rem 1.25rem;
   display: flex;
@@ -101,10 +119,11 @@ body {
   align-items: center;
   gap: 0.875rem;
   position: relative;
-  transition: box-shadow var(--ease);
+  transition: border-color var(--ease), filter var(--ease);
 }
 .clock-card.is-complete {
-  box-shadow: 0 0 0 2px var(--c-glow), 0 0 36px var(--c-glow);
+  border-color: var(--c-glow);
+  box-shadow: 0 0 0 1px var(--c-glow), 0 0 32px var(--c-glow);
 }
 
 .card-controls {
@@ -138,19 +157,28 @@ body {
 .clock-svg .seg-f { fill: var(--c-base); }
 .clock-svg .seg-e { fill: var(--c-empty); }
 
+/* The clock breathes faster the closer it gets. --ratio (0–1) comes from
+   app.js alongside --fill; an empty clock is near-dormant at 7s, a full one
+   urgent at 1.7s. Everything that pulses reads --breath so the ring and the
+   face can never drift into different tempos. */
+.clock-card { --breath: calc(7s - 5.3s * var(--ratio, 0)); }
+
 .clock-card[data-animated="true"] .clock-svg {
-  animation: clock-pulse 2.8s ease-in-out infinite;
+  animation: clock-pulse var(--breath) ease-in-out infinite;
 }
+/* Depth scales with --ratio too: speed alone left an empty clock flashing at
+   full strength every cycle, which was most of the "hectic". */
 @keyframes clock-pulse {
   0%, 100% { filter: none; }
-  50%       { filter: brightness(1.25) drop-shadow(0 0 9px var(--c-glow)); }
+  50%      { filter: brightness(calc(1 + 0.26 * var(--ratio, 0)))
+                     drop-shadow(0 0 calc(3px + 8px * var(--ratio, 0)) var(--c-glow)); }
 }
 
 .complete-ring {
   fill: none;
   stroke: var(--c-glow);
   stroke-width: 2;
-  animation: ring-throb 1.4s ease-in-out infinite;
+  animation: ring-throb var(--breath) ease-in-out infinite;
 }
 /* Always in the DOM so updateClock() only toggles a class — see app.js */
 .clock-card:not(.is-complete) .complete-ring { display: none; }
@@ -304,13 +332,13 @@ body {
 dialog {
   background: var(--surface-hi);
   color: var(--on-surface);
-  border: none;
+  border: 1px solid var(--faint);
   border-radius: var(--radius-lg);
   padding: 2rem;
   max-width: min(460px, calc(100vw - 2rem));
   width: 100%;
   margin: auto;
-  box-shadow: 0 12px 40px oklch(0% 0 0 / 0.65);
+  box-shadow: 0 12px 40px oklch(0% 0 0 / 0.7);
 
   /* allow-discrete lets display/overlay participate, so the dialog animates out
      as well as in rather than vanishing on close. */
