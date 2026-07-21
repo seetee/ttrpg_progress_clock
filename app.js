@@ -53,11 +53,6 @@ const PALETTES = {
 
 const SEGMENT_PRESETS = [2, 4, 6, 8, 10, 12, 20];
 
-// Palette keys that have been renamed. Stored clocks reference keys by name, so
-// without this map sanitize() would treat an old key as unknown and silently
-// reset those clocks to crimson.
-const RENAMED_PALETTES = { arcane: 'cypher' };
-
 // ── State ─────────────────────────────────────────────────────────────────────
 let clocks    = [];
 let editMode  = false;
@@ -83,13 +78,12 @@ function sanitize(raw) {
   return raw.flatMap(c => {
     if (!c || typeof c !== 'object' || !c.id || typeof c.name !== 'string') return [];
     const segments = Math.min(20, Math.max(2, Math.round(Number(c.segments)) || 6));
-    const palette  = RENAMED_PALETTES[c.palette] ?? c.palette;
     return [{
       id:       String(c.id),
       name:     c.name,
       segments,
       filled:   Math.min(segments, Math.max(0, Math.round(Number(c.filled)) || 0)),
-      palette:  palette in PALETTES ? palette : 'crimson',
+      palette:  c.palette in PALETTES ? c.palette : 'crimson',
     }];
   });
 }
