@@ -25,6 +25,12 @@
   --radius-md:  1.0rem;
   --radius-lg:  1.5rem;
   --ease:       200ms ease;
+
+  /* Condensed grotesque — signage, legible across a table. System stacks only:
+     a webfont would need a network fetch the offline SW can't guarantee. */
+  --font-display: "Avenir Next Condensed", "Roboto Condensed",
+                  "Liberation Sans Narrow", "Arial Narrow",
+                  "DejaVu Sans Condensed", ui-sans-serif, sans-serif;
   color-scheme: dark;
   font-family: system-ui, -apple-system, sans-serif;
   font-size: clamp(0.9rem, 2.2vw, 1.05rem);
@@ -63,6 +69,14 @@ body {
   pointer-events: none;
 }
 .empty-state[hidden] { display: none; }
+.empty-state p:first-of-type {
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--on-surface);
+}
 .empty-state .muted  { font-size: 0.88rem; }
 
 .clock-card {
@@ -157,9 +171,11 @@ body {
 .clock-svg.dec-flash { animation: dec-flash 380ms ease-out forwards !important; }
 
 .clock-name {
-  font-size: 1.05rem;
-  font-weight: 600;
-  letter-spacing: 0.03em;
+  font-family: var(--font-display);
+  font-size: 1.2rem;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
   text-align: center;
   color: var(--on-surface);
   max-width: 100%;
@@ -167,6 +183,20 @@ body {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+
+/* The rule under the name carries the same count as the ring: a linear read
+   for anyone too far from the table to resolve the segment gaps. */
+.clock-card::after {
+  content: "";
+  width: 58%;
+  max-width: 180px;
+  height: 2px;
+  margin-top: -0.45rem;
+  border-radius: 1px;
+  background: linear-gradient(to right,
+    var(--c-base) var(--fill), var(--c-empty) var(--fill));
+}
+.clock-card.is-complete::after { box-shadow: 0 0 10px var(--c-glow); }
 
 .btn-icon {
   display: flex;
@@ -242,8 +272,8 @@ body {
 }
 .edit-mode .fab { display: flex; }
 .fab:hover, .fab:focus-visible {
-  transform: scale(1.1);
-  box-shadow: 0 6px 20px oklch(0% 0 0 / 0.55);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 22px oklch(0% 0 0 / 0.6), 0 0 0 3px var(--accent-glow);
 }
 
 dialog {
@@ -262,8 +292,11 @@ dialog::backdrop {
   backdrop-filter: blur(6px);
 }
 dialog h2 {
-  font-size: 1.25rem;
+  font-family: var(--font-display);
+  font-size: 1.6rem;
   font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
   margin-bottom: 1.5rem;
 }
 
@@ -275,7 +308,8 @@ dialog h2 {
 }
 .field > label, .field > legend {
   display: block;
-  font-size: 0.78rem;
+  font-family: var(--font-display);
+  font-size: 0.82rem;
   font-weight: 700;
   letter-spacing: 0.09em;
   text-transform: uppercase;
@@ -388,11 +422,14 @@ dialog h2 {
   margin-top: 1.5rem;
 }
 .btn {
-  padding: 0.65rem 1.25rem;
+  padding: 0.65rem 1.35rem;
   border-radius: var(--radius-sm);
   border: none;
-  font-size: 0.95rem;
+  font-family: var(--font-display);
+  font-size: 1rem;
   font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
   cursor: pointer;
   transition: background var(--ease), color var(--ease);
 }
@@ -427,7 +464,7 @@ dialog h2 {
       <path d="M50 12 A38 38 0 0 1 88 50" fill="none" stroke="currentColor"
             stroke-width="10" stroke-linecap="round" opacity="0.55"/>
     </svg>
-    <p>No progress clocks.</p>
+    <p>No clocks running.</p>
     <p class="muted">Tap ✏ to enter edit mode, then + to add one.</p>
   </div>
 

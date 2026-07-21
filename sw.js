@@ -1,4 +1,4 @@
-const CACHE = 'progress-clocks-v1';
+const CACHE = 'progress-clocks-v2';
 const ASSETS = ['./', './index.html', './app.js', './manifest.json', './icon.svg'];
 // Note: add any icon-*.png paths here if/when raster icons are generated
 

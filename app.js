@@ -139,7 +139,7 @@ function renderAll() {
         data-id="${c.id}"
         data-animated="${pal.animated || false}"
         data-sweep="${pal.sweep || false}"
-        style="--c-glow:${pal.glow}"
+        style="--c-glow:${pal.glow};--c-base:${pal.base};--c-empty:${pal.empty};--fill:${fmt(c.filled / c.segments * 100)}%"
       >${clockSVG(c)}<h2 class="clock-name">${escHtml(c.name)}</h2><div class="card-controls" role="group" aria-label="Controls for ${escHtml(c.name)}"><button class="btn-icon btn-reset" data-action="reset" aria-label="Reset ${escHtml(c.name)}" title="Reset"><svg viewBox="0 0 24 24" width="17" height="17"><path d="M12 5V1L7 6l5 5V7c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6H4c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8z"/></svg></button><button class="btn-icon btn-edit" data-action="edit" aria-label="Edit ${escHtml(c.name)}" title="Edit"><svg viewBox="0 0 24 24" width="17" height="17"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a1 1 0 0 0 0-1.41l-2.34-2.34a1 1 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg></button><button class="btn-icon btn-delete" data-action="delete" aria-label="Delete ${escHtml(c.name)}" title="Delete"><svg viewBox="0 0 24 24" width="17" height="17"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg></button></div></article>`;
   }).join('');
 }
