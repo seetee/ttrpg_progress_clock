@@ -64,8 +64,28 @@ function save() {
 }
 
 function load() {
-  try { clocks = JSON.parse(localStorage.getItem('progress-clocks-v1') || '[]'); }
-  catch { clocks = []; }
+  let raw;
+  try { raw = JSON.parse(localStorage.getItem('progress-clocks-v1') || '[]'); }
+  catch { raw = []; }
+  clocks = sanitize(raw);
+}
+
+// localStorage is a trust boundary: it survives across releases and is editable by
+// hand. An unknown palette key used to throw inside init(), leaving a blank page and
+// no way back — so a palette rename would have bricked every existing install.
+function sanitize(raw) {
+  if (!Array.isArray(raw)) return [];
+  return raw.flatMap(c => {
+    if (!c || typeof c !== 'object' || !c.id || typeof c.name !== 'string') return [];
+    const segments = Math.min(20, Math.max(2, Math.round(Number(c.segments)) || 6));
+    return [{
+      id:       String(c.id),
+      name:     c.name,
+      segments,
+      filled:   Math.min(segments, Math.max(0, Math.round(Number(c.filled)) || 0)),
+      palette:  c.palette in PALETTES ? c.palette : 'crimson',
+    }];
+  });
 }
 
 // ── SVG clock rendering ───────────────────────────────────────────────────────
@@ -94,7 +114,7 @@ function arcPath(startDeg, endDeg) {
 function fmt(n) { return Math.round(n * 1000) / 1000; }
 
 function clockSVG(clock) {
-  const { segments, filled, palette: palKey } = clock;
+  const { segments, filled, name, palette: palKey } = clock;
   const pal  = PALETTES[palKey];
   // Small gap between segments, proportionally smaller for low counts
   const GAP  = Math.max(1.5, Math.min(4, 360 / segments * 0.09));
@@ -108,20 +128,25 @@ function clockSVG(clock) {
     paths += `<path d="${arcPath(start, end)}" class="${cls}"/>`;
   }
 
-  const done = filled === segments;
   const vars = `--c-base:${pal.base};--c-mid:${pal.mid};--c-empty:${pal.empty};--c-glow:${pal.glow}`;
   const sweep = pal.sweep
     ? `<circle class="sweep-arc" cx="${CX}" cy="${CY}" r="${(OR + IR) / 2}" fill="none" stroke="var(--c-mid)" stroke-width="${OR - IR}" stroke-dasharray="28 ${Math.PI * (OR + IR) - 28}" stroke-linecap="round" opacity="0.38"/>`
     : '';
 
+  // The completion ring is always present so updateClock() only toggles classes,
+  // never adds or removes nodes; CSS hides it unless the card is .is-complete.
   return `<svg class="clock-svg"
      viewBox="0 0 100 100"
-     role="img"
-     aria-label="${filled} of ${segments} segments filled"
+     role="button"
+     aria-label="${escHtml(clockLabel(clock))}"
      tabindex="0"
-     style="${vars}">${
-       done ? `<circle class="complete-ring" cx="${CX}" cy="${CY}" r="48"/>` : ''
-     }${paths}${sweep}<circle class="clock-center" cx="${CX}" cy="${CY}" r="${IR - 5}"/><text class="clock-text" x="${CX}" y="${CY}">${filled}/${segments}</text></svg>`;
+     style="${vars}"><circle class="complete-ring" cx="${CX}" cy="${CY}" r="48"/>${paths}${sweep}<circle class="clock-center" cx="${CX}" cy="${CY}" r="${IR - 5}"/><text class="clock-text" x="${CX}" y="${CY}">${filled}/${segments}</text></svg>`;
+}
+
+// Returns raw text. Callers escape only when interpolating into markup —
+// setAttribute() takes it as-is, and escaping there would double-encode.
+function clockLabel(c) {
+  return `${c.name}, ${c.filled} of ${c.segments} filled`;
 }
 
 // ── Rendering ─────────────────────────────────────────────────────────────────
@@ -134,14 +159,48 @@ function renderAll() {
   grid.innerHTML = clocks.map(c => {
     const pal  = PALETTES[c.palette];
     const done = c.filled === c.segments;
-    return `<article
+    return `<li
         class="clock-card${done ? ' is-complete' : ''}"
         data-id="${c.id}"
         data-animated="${pal.animated || false}"
         data-sweep="${pal.sweep || false}"
         style="--c-glow:${pal.glow};--c-base:${pal.base};--c-empty:${pal.empty};--fill:${fmt(c.filled / c.segments * 100)}%"
-      >${clockSVG(c)}<h2 class="clock-name">${escHtml(c.name)}</h2><div class="card-controls" role="group" aria-label="Controls for ${escHtml(c.name)}"><button class="btn-icon btn-reset" data-action="reset" aria-label="Reset ${escHtml(c.name)}" title="Reset"><svg viewBox="0 0 24 24" width="17" height="17"><path d="M12 5V1L7 6l5 5V7c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6H4c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8z"/></svg></button><button class="btn-icon btn-edit" data-action="edit" aria-label="Edit ${escHtml(c.name)}" title="Edit"><svg viewBox="0 0 24 24" width="17" height="17"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a1 1 0 0 0 0-1.41l-2.34-2.34a1 1 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg></button><button class="btn-icon btn-delete" data-action="delete" aria-label="Delete ${escHtml(c.name)}" title="Delete"><svg viewBox="0 0 24 24" width="17" height="17"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg></button></div></article>`;
+      >${clockSVG(c)}<h2 class="clock-name">${escHtml(c.name)}</h2><div class="card-controls" role="group" aria-label="Controls for ${escHtml(c.name)}"><button class="btn-icon btn-reset" data-action="reset" aria-label="Reset ${escHtml(c.name)}" title="Reset"><svg viewBox="0 0 24 24" width="17" height="17"><path d="M12 5V1L7 6l5 5V7c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6H4c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8z"/></svg></button><button class="btn-icon btn-edit" data-action="edit" aria-label="Edit ${escHtml(c.name)}" title="Edit"><svg viewBox="0 0 24 24" width="17" height="17"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a1 1 0 0 0 0-1.41l-2.34-2.34a1 1 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg></button><button class="btn-icon btn-delete" data-action="delete" aria-label="Delete ${escHtml(c.name)}" title="Delete"><svg viewBox="0 0 24 24" width="17" height="17"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg></button></div></li>`;
   }).join('');
+}
+
+// Patch one card in place. Ticking must not go through renderAll(): replacing the
+// grid destroys the focused element (so a keyboard user could only ever advance
+// once) and restarts every CSS transition from scratch.
+function updateClock(id) {
+  const c    = clocks.find(c => c.id === id);
+  const card = document.querySelector(`.clock-card[data-id="${id}"]`);
+  if (!c || !card) return;
+
+  const svg = card.querySelector('.clock-svg');
+  svg.querySelectorAll('path').forEach((p, i) => {
+    p.classList.toggle('seg-f', i <  c.filled);
+    p.classList.toggle('seg-e', i >= c.filled);
+  });
+  svg.querySelector('.clock-text').textContent = `${c.filled}/${c.segments}`;
+  svg.setAttribute('aria-label', clockLabel(c));
+
+  card.style.setProperty('--fill', `${fmt(c.filled / c.segments * 100)}%`);
+  card.classList.toggle('is-complete', c.filled === c.segments);
+
+  announce(`${c.name}, ${c.filled} of ${c.segments}${c.filled === c.segments ? ', complete' : ''}`);
+}
+
+function announce(msg) {
+  document.getElementById('sr-status').textContent = msg;
+}
+
+// Cards genuinely appearing/disappearing (add, edit, delete) get a cross-fade.
+// Ticking never comes through here — updateClock() patches in place instead.
+function render() {
+  const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (reduced || !document.startViewTransition) { renderAll(); return; }
+  document.startViewTransition(() => renderAll());
 }
 
 function escHtml(s) {
@@ -165,7 +224,7 @@ function advance(id) {
   if (!c || c.filled >= c.segments) return;
   c.filled++;
   save();
-  renderAll();
+  updateClock(id);
   if (navigator.vibrate) navigator.vibrate(30);
 }
 
@@ -174,7 +233,7 @@ function decrement(id) {
   if (!c || c.filled <= 0) return;
   c.filled--;
   save();
-  renderAll();
+  updateClock(id);
   if (navigator.vibrate) navigator.vibrate([20, 40, 20]);
 }
 
@@ -210,11 +269,11 @@ function handleCardAction(action, id) {
     if (!confirm('Delete this clock?')) return;
     clocks = clocks.filter(c => c.id !== id);
     save();
-    renderAll();
+    render();
   }
   if (action === 'reset') {
     const c = clocks.find(c => c.id === id);
-    if (c) { c.filled = 0; save(); renderAll(); }
+    if (c) { c.filled = 0; save(); updateClock(id); }
   }
   if (action === 'edit') {
     editingId = id;
@@ -330,7 +389,7 @@ function handleDialogSubmit(e) {
   }
 
   save();
-  renderAll();
+  render();
   document.getElementById('clock-dialog').close();
 }
 
@@ -384,6 +443,9 @@ function initEvents() {
   });
 
   // Card action buttons (reset / edit / delete)
+  // DevTools flags this as "clickable elements must be focusable" — false positive.
+  // The listener only ever acts on the real <button>s inside cards, which are
+  // focusable already. Delegation lives here because renderAll() replaces them.
   grid.addEventListener('click', e => {
     const btn = e.target.closest('[data-action]');
     if (!btn) return;

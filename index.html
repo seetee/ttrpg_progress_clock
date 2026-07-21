@@ -9,6 +9,9 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <title>Progress Clocks</title>
+  <meta http-equiv="Content-Security-Policy"
+        content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline';
+                 img-src 'self' data:; connect-src 'none'; base-uri 'none'; form-action 'none'">
   <link rel="manifest" href="manifest.json">
   <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -46,7 +49,17 @@ body {
 
 .btn-icon svg path, .edit-toggle svg path, .fab svg path { fill: currentColor; }
 
+.sr-only {
+  position: absolute;
+  width: 1px; height: 1px;
+  margin: -1px; padding: 0; border: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
 .clock-grid {
+  list-style: none;
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(min(260px, 100%), 1fr));
   gap: 1.25rem;
@@ -139,6 +152,8 @@ body {
   stroke-width: 2;
   animation: ring-throb 1.4s ease-in-out infinite;
 }
+/* Always in the DOM so updateClock() only toggles a class — see app.js */
+.clock-card:not(.is-complete) .complete-ring { display: none; }
 @keyframes ring-throb {
   0%, 100% { stroke-opacity: 0.4; stroke-width: 1.5; }
   50%       { stroke-opacity: 1.0; stroke-width: 3.5; }
@@ -197,6 +212,16 @@ body {
     var(--c-base) var(--fill), var(--c-empty) var(--fill));
 }
 .clock-card.is-complete::after { box-shadow: 0 0 10px var(--c-glow); }
+
+/* Registering --fill makes it interpolable, so the rule sweeps between segments
+   instead of snapping. inherits must be true — --fill is set on .clock-card but
+   read by ::after, which only sees it by inheritance. */
+@property --fill {
+  syntax: "<percentage>";
+  inherits: true;
+  initial-value: 0%;
+}
+.clock-card::after { transition: --fill 240ms cubic-bezier(0.3, 0, 0.2, 1); }
 
 .btn-icon {
   display: flex;
@@ -286,10 +311,27 @@ dialog {
   width: 100%;
   margin: auto;
   box-shadow: 0 12px 40px oklch(0% 0 0 / 0.65);
+
+  /* allow-discrete lets display/overlay participate, so the dialog animates out
+     as well as in rather than vanishing on close. */
+  opacity: 0;
+  transform: scale(0.97) translateY(10px);
+  transition: opacity 200ms ease, transform 200ms ease,
+              overlay 200ms ease allow-discrete, display 200ms ease allow-discrete;
+}
+dialog[open] { opacity: 1; transform: none; }
+@starting-style {
+  dialog[open] { opacity: 0; transform: scale(0.97) translateY(10px); }
 }
 dialog::backdrop {
   background: oklch(0% 0 0 / 0.65);
   backdrop-filter: blur(6px);
+  transition: opacity 200ms ease, overlay 200ms ease allow-discrete,
+              display 200ms ease allow-discrete;
+}
+dialog[open]::backdrop { opacity: 1; }
+@starting-style {
+  dialog[open]::backdrop { opacity: 0; }
 }
 dialog h2 {
   font-family: var(--font-display);
@@ -455,7 +497,12 @@ dialog h2 {
 </head>
 <body>
 
-  <main class="clock-grid" id="clock-grid" aria-label="Progress clocks"></main>
+  <main>
+    <h1 class="sr-only">Progress Clocks</h1>
+    <ul class="clock-grid" id="clock-grid"></ul>
+  </main>
+
+  <p class="sr-only" id="sr-status" role="status" aria-live="polite"></p>
 
   <div class="empty-state" id="empty-state" aria-live="polite">
     <svg viewBox="0 0 100 100" width="72" height="72" aria-hidden="true" focusable="false">
