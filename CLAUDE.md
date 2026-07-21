@@ -18,11 +18,17 @@ CSS is inline in `index.html`'s `<style>` block by design — there is no separa
 
 ## Architecture — all in `app.js`
 
-- **`PALETTES`** — the single source of colour truth. Each entry supplies `base`/`mid`/`empty`/`glow` in `oklch()`, plus optional behaviour flags `animated` (CSS pulse) and `sweep` (rotating arc overlay). Adding a palette is a one-object edit; the dialog swatches, the card, and the SVG all read from it. The flags are surfaced to CSS as `data-animated` / `data-sweep` attributes on `.clock-card`, and the colours as inline `--c-*` custom properties (alongside `--fill`, the card's progress ratio).
-- **`renderAll()`** — full re-render of the grid via `innerHTML` on every state change. There is no diffing and no per-card update path; any mutation calls `save()` then `renderAll()`. All interpolated user text goes through `escHtml()`.
-- **Event delegation** — every listener is attached once to `#clock-grid` (or a fixed `#id`) in `initEvents()`, never to rendered cards, precisely because `renderAll()` destroys them.
+- **`PALETTES`** — the single source of colour truth. Each entry supplies `base`/`mid`/`empty`/`glow` in `oklch()`, plus optional behaviour flags `animated` (CSS pulse) and `sweep` (rotating arc overlay). Adding a palette is a one-object edit; the dialog swatches, the card, and the SVG all read from it. The flags are surfaced to CSS as `data-animated` / `data-sweep` attributes on `.clock-card`, the colours as inline `--c-*` properties.
+- **Three render paths, and the distinction matters.** `updateClock(id)` patches a single card for ticks — never route a tick through a re-render, because replacing the grid destroys the focused element (a keyboard user could then advance only once) and restarts every CSS transition. `render()` wraps a full rebuild in a View Transition for add/edit/delete. `renderAll()` is the raw rebuild, called directly only by `init()`. All interpolated user text goes through `escHtml()`.
+- **Event delegation** — every listener is attached once to `#clock-grid` (or a fixed `#id`) in `initEvents()`, never to rendered cards, precisely because a rebuild destroys them.
 
 State persists as JSON under the `progress-clocks-v1` localStorage key.
+
+**Animation tempo is data.** `renderAll()` and `updateClock()` both emit `--fill` (a percentage, for the underline rule) and `--ratio` (0–1) onto the card. CSS derives `--breath` from `--ratio`, and *every paced animation on a card must read `--breath`* — a hard-coded duration will beat against the others as a clock fills. Both properties are written in two places; keep them together so they can't drift.
+
+**`localStorage` is a trust boundary.** `sanitize()` clamps and coerces on load; without it an unknown palette key throws inside `init()`, leaving a blank page and no in-app recovery. Renaming a palette key is therefore not free — stored clocks reference keys by name, and an unrecognised one falls back to `crimson`. That's cosmetic, not data loss, and there is deliberately no migration map: add one if a rename ever needs to preserve colour for existing installs.
+
+The `#sr-status` live region lives **outside** `#clock-grid` by necessity — inside, a rebuild would destroy it before it could announce.
 
 **Edit mode** is purely a `body.edit-mode` class — CSS reveals the per-card controls and the FAB. Nothing is hidden from the DOM, so the players' view and the GM's view are the same markup.
 
