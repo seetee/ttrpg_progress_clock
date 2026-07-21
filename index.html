@@ -159,8 +159,8 @@ body {
 
 /* The clock breathes faster the closer it gets. --ratio (0–1) comes from
    app.js alongside --fill; an empty clock is near-dormant at 7s, a full one
-   urgent at 1.7s. Everything that pulses reads --breath so the ring and the
-   face can never drift into different tempos. */
+   urgent at 1.7s. Every paced animation on a card reads --breath, so nothing
+   can drift into a competing tempo. */
 .clock-card { --breath: calc(7s - 5.3s * var(--ratio, 0)); }
 
 .clock-card[data-animated="true"] .clock-svg {
@@ -189,7 +189,7 @@ body {
 
 .sweep-arc {
   transform-origin: 50px 50px;
-  animation: sweep-rotate 4s linear infinite;
+  animation: sweep-rotate var(--breath) linear infinite;
 }
 @keyframes sweep-rotate {
   from { transform: rotate(-90deg); }
